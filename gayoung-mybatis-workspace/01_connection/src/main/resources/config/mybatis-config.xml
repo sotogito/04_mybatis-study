@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--
+    * typeAliases : 클래스 별칭 작성
+    -->
+
+    <environments default="dev">
+        <environment id="dev">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/menudb"/>
+                <property name="username" value="YoungGaLee"/>
+                <property name="password" value="younggalee"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <!--
+    <mappers> // (SQL문 작성되어있는) xml파일 등록 시키는 태그
+        <mapper/>
+    </mappers>
+    -->
+</configuration>
