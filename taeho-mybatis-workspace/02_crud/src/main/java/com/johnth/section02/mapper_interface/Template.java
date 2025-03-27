@@ -1,4 +1,4 @@
-package com.johnth.section01.xml;
+package com.johnth.section02.mapper_interface;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -15,15 +15,13 @@ public class Template {
     public static SqlSession getSqlSession(){
         if(sqlSessionFactory == null){
             try {
-                InputStream inputStream = Resources.getResourceAsStream("section01/xml/mybatis-config.xml");
+                InputStream inputStream = Resources.getResourceAsStream("section02/mapper_interface/mybatis-config.xml");
                 sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
         return sqlSessionFactory.openSession(false);
     }
-
 
 }
