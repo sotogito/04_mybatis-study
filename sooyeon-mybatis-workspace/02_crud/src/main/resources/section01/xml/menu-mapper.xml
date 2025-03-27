@@ -7,75 +7,180 @@
 
     <insert id="insertMenu" parameterType="com.sotogito.dto.MenuDto">
         INSERT INTO
-            tbl_menu
-            (
-              menu_name
-            , menu_price
-            , category_code
-            , orderable_status
-            )
+        tbl_menu
+        (
+        menu_name
+        , menu_price
+        , category_code
+        , orderable_status
+        )
         VALUES
-            (
-              #{menuName} <!--MenuDto 필드명-->
-            , #{menuPrice} <!-- =  ps.setInt(2,menuDto.getMenuPrice);-->
-            , #{categoryCode}
-            , #{orderableStatus}
-            )
+        (
+        #{menuName} <!--MenuDto 필드명-->
+        , #{menuPrice} <!-- =  ps.setInt(2,menuDto.getMenuPrice);-->
+        , #{categoryCode}
+        , #{orderableStatus}
+        )
     </insert>
+
+    <update id="updateMenu" parameterType="com.sotogito.dto.MenuDto">
+        UPDATE
+        tbl_menu
+        SET
+        menu_name = #{menuName}
+        , menu_price = #{menuPrice}
+        , category_code = #{categoryCode}
+        WHERE
+        menu_code = #{menuCode}
+    </update>
+
+    <delete id="deleteMenu" parameterType="_int"> <!-- dto가 아니라 숫자로 넘어오기 대문에 _int-->
+        DELETE
+        FROM
+        tbl_menu
+        WHERE
+        menu_code = #{menuCode}
+    </delete>
+
+    <!-- resultType 전체 결과가 아니라 한 행의 결과 타입-->
+    <!-- 한 행(row) 당 한 개의 컬럼 값(menu_name) 을 String 타입으로 매핑하겠다는 의미
+        MyBatis는 이 쿼리가 여러 행을 반환할 거라고 판단하면 → 자동으로 List<String> 으로 리턴함-->
+    <select id="selectMenuNameList" resultType="string"><!--java.lang.String-->
+        SELECT
+        menu_name
+        FROM
+        tbl_menu
+    </select>
+
+
+    <!--
+        1. resultType = MenuDto
+            조회되는 컬럼명이 매필시킬 MenuDto의 필드명이 일치해야 자동매핑됨 - 드뭄
+            만약,
+            조회되는 컬럼 명이 다를 경우
+            별칭을 부여해서 컬럼의 해더가 필드명으로조회ㅗ디도록 함
+    -->
+    <!--
+    <select id="selectOrderableMenuList" resultType="com.sotogito.dto.MenuDto">
+        SELECT
+            menu_code            AS menuCode
+          , menu_name            AS menuName
+          , menu_price           AS menuPrice
+          , category_code        AS categoryCode
+          , orderable_status     AS orderableStatus
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status = 'Y'
+    </select>
+    --><!--단점 : 매번 메뉴에 대해 조회할 떄마다 별칭으로 지정해야됨-->
+
+    <!--
+        2. ResultMap사용
+            특정 컬럼값을 특정 필드에 매핑시키는 resultMap을 한번 정의해두고 재사용하기
+            <resultMap id = "식별자" type = "매핑시킬DTO타입>
+                <id | result colum = "조회되는 컬럼명" property = "매핑시킬DTO의필드명" />
+
+            </resultMap>
+    -->
+
+    <resultMap id="menuResultMap" type="com.sotogito.dto.MenuDto">
+        <id      column="menu_code"         property="menuCode"/>
+        <result  column="menu_name"         property="menuName"/>
+        <result  column="menu_price"        property="menuPrice"/>
+        <result  column="category_code"     property="categoryCode"/>
+        <result  column="orderable_status"  property="orderableStatus"/>
+    </resultMap>
+
+    <select id="selectOrderableMenuList" resultMap="menuResultMap">
+        SELECT
+            menu_code
+          , menu_name
+          , menu_price
+          , category_code
+          , orderable_status
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status = 'Y'
+    </select>
+
+    <select id="selectOrderableMenuCount" resultType="_int">
+        SELECT
+            COUNT(*)
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status = 'Y'
+    </select>
+
+    <select id="selectMenuByMenuCode" resultMap="menuResultMap">
+        SELECT
+            menu_code
+          , menu_name
+          , menu_price
+          , category_code
+          , orderable_status
+        FROM
+            tbl_menu
+        WHERE
+            menu_code = #{한개전달되면이엏게아무거나써도됨}
+        AND orderable_status = 'Y'
+    </select>
 
 </mapper>
 
-<!--
-## Mapper 파일 작성 ##
+        <!--
+        ## Mapper 파일 작성 ##
 
-*  주요 태그 종류
-1. <select> : select문 작성
-2. <insert> : insert문 작성
-3. <update> : update문 작성
-4. <delete> : delete문 작성
-5. <resultMap> : 조회된 한 행을 매핑시킬 타입 지정
-                 주로 DTO에 매핑시킬때 사용
+        *  주요 태그 종류
+        1. <select> : select문 작성
+        2. <insert> : insert문 작성
+        3. <update> : update문 작성
+        4. <delete> : delete문 작성
+        5. <resultMap> : 조회된 한 행을 매핑시킬 타입 지정
+                         주로 DTO에 매핑시킬때 사용
 
-*  주요 속성 종류
-1. id : 해당 sql문의 식별자 (필수)
-2. parameterType : 해당 sql문으로 전달되는 파라미터 타입 (선택)
-    ex) parameterType="_int"
-        parameterType="string"
-        parameterType="map"
-        parameterType="com.kangbroo.model.dto.MenuDto" (Alias 미등록시)
-        parameterType="MenuDto" (Alias 등록시)
-3. resultType : select문 실행 결과 한 row에 대한 타입 (dml문일 경우 미작성)
-    ex) 위의 parameterType과 유사
-4. resultMap  : select문 실행 결과 한 row에 대해 어떤 resultMap을 참조시킬껀지 resultMap의 id작성 (dml문일 경우 미작성)
+        *  주요 속성 종류
+        1. id : 해당 sql문의 식별자 (필수)
+        2. parameterType : 해당 sql문으로 전달되는 파라미터 타입 (선택)
+            ex) parameterType="_int"
+                parameterType="string"
+                parameterType="map"
+                parameterType="com.kangbroo.model.dto.MenuDto" (Alias 미등록시)
+                parameterType="MenuDto" (Alias 등록시)
+        3. resultType : select문 실행 결과 한 row에 대한 타입 (dml문일 경우 미작성)
+            ex) 위의 parameterType과 유사
+        4. resultMap  : select문 실행 결과 한 row에 대해 어떤 resultMap을 참조시킬껀지 resultMap의 id작성 (dml문일 경우 미작성)
 
-*  주요 MyBatis 내장 별칭
-     자바   |   마이바티스
-   ========================
-     int    |    _int
-    String  |   string
-     List   |    list
-     Map    |     map
+        *  주요 MyBatis 내장 별칭
+             자바   |   마이바티스
+           ========================
+             int    |    _int
+            String  |   string
+             List   |    list
+             Map    |     map
 
-*  파라미터 바인딩 (#{}권장, ${})
-   만일 sql문으로 전달된 데이터가 있을 경우 파라미터 설정하기
+        *  파라미터 바인딩 (#{}권장, ${})
+           만일 sql문으로 전달된 데이터가 있을 경우 파라미터 설정하기
 
-1. #{} : ?와 같은 역할을 수행하며 내부적으로 PreparedStatement 방식으로 값 처리함
-         해당 값의 타입에 맞춰 값이 바인딩됨
+        1. #{} : ?와 같은 역할을 수행하며 내부적으로 PreparedStatement 방식으로 값 처리함
+                 해당 값의 타입에 맞춰 값이 바인딩됨
 
-       case 1. code 변수(10)에 숫자가 담겨 넘어올 경우  => #{변수}
-                #{code}  ==  10
-       case 2. Map{name:"홍길동", age:17}이 넘어올 경우 => #{키}
-                #{name}  ==  '홍길동'
-                #{age}   ==  17
-       case 3. MenuDto{menuCode:12, menuName:"음식"} 이 넘어올 경우 => #{필드}
-                #{menuCode} == 12
-                #{menuName} == '음식'
+               case 1. code 변수(10)에 숫자가 담겨 넘어올 경우  => #{변수}
+                        #{code}  ==  10
+               case 2. Map{name:"홍길동", age:17}이 넘어올 경우 => #{키}
+                        #{name}  ==  '홍길동'
+                        #{age}   ==  17
+               case 3. MenuDto{menuCode:12, menuName:"음식"} 이 넘어올 경우 => #{필드}
+                        #{menuCode} == 12
+                        #{menuName} == '음식'
 
-2. ${} : sql문의 메타데이터(테이블명, 컬럼명, sql자체)를 처리할 때 사용함
-         실제 데이터 값을 바인딩할 때 사용하면 SQL Injection에 취약함
+        2. ${} : sql문의 메타데이터(테이블명, 컬럼명, sql자체)를 처리할 때 사용함
+                 실제 데이터 값을 바인딩할 때 사용하면 SQL Injection에 취약함
 
-        ex) Map{tableName:"tbl_menu", columnName:"menu_name"} 이 넘어올 경우
-                SELECT * FROM ${tableName} WHERE ${columnName} = '열무'
-                => SELECT * FROM tbl_menu WHERE menu_name = '열무'   로 완성됨
+                ex) Map{tableName:"tbl_menu", columnName:"menu_name"} 이 넘어올 경우
+                        SELECT * FROM ${tableName} WHERE ${columnName} = '열무'
+                        => SELECT * FROM tbl_menu WHERE menu_name = '열무'   로 완성됨
 
-    -->
+            -->
