@@ -30,7 +30,7 @@
     1. SQL문과 Java 메소드가 명확하게 매핑 (직관적으로 연결 => 쉽게 찾을 수 있음 => 유지보수 용이)
     2. 코드의 간결성
     3. SqlSession객체 주입 불필요 (MyBatis에서 자동으로 sql문을 찾아서 실행해줌)
-    
+
 -->
 
 <mapper namespace="com.podoseee.section02.mapper_interface.MenuMapper">
