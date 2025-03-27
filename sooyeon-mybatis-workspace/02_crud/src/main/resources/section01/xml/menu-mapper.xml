@@ -9,14 +9,14 @@
         INSERT INTO
         tbl_menu
         (
-        menu_name
+          menu_name
         , menu_price
         , category_code
         , orderable_status
         )
         VALUES
         (
-        #{menuName} <!--MenuDto 필드명-->
+          #{menuName} <!--MenuDto 필드명-->
         , #{menuPrice} <!-- =  ps.setInt(2,menuDto.getMenuPrice);-->
         , #{categoryCode}
         , #{orderableStatus}
@@ -25,21 +25,21 @@
 
     <update id="updateMenu" parameterType="com.sotogito.dto.MenuDto">
         UPDATE
-        tbl_menu
+            tbl_menu
         SET
-        menu_name = #{menuName}
-        , menu_price = #{menuPrice}
-        , category_code = #{categoryCode}
+            menu_name = #{menuName}
+          , menu_price = #{menuPrice}
+          , category_code = #{categoryCode}
         WHERE
-        menu_code = #{menuCode}
+             menu_code = #{menuCode}
     </update>
 
     <delete id="deleteMenu" parameterType="_int"> <!-- dto가 아니라 숫자로 넘어오기 대문에 _int-->
         DELETE
         FROM
-        tbl_menu
+            tbl_menu
         WHERE
-        menu_code = #{menuCode}
+            menu_code = #{menuCode}
     </delete>
 
     <!-- resultType 전체 결과가 아니라 한 행의 결과 타입-->
@@ -47,9 +47,9 @@
         MyBatis는 이 쿼리가 여러 행을 반환할 거라고 판단하면 → 자동으로 List<String> 으로 리턴함-->
     <select id="selectMenuNameList" resultType="string"><!--java.lang.String-->
         SELECT
-        menu_name
+            menu_name
         FROM
-        tbl_menu
+            tbl_menu
     </select>
 
 
