@@ -7,6 +7,16 @@
 
     <properties resource="config/connection-config.properties"/>
 
+    <!--
+        ##typeAliases 앨리면터
+        Mapper 파일에 대부분 DTO에 대한 탕비 명시시 풀클래스명 작성해야됨 귀찮음
+        풀클래스명 대신 타입별 별칭을 설정할 수 있음
+
+    -->
+    <typeAliases>
+        <typeAlias type="com.sotogito.dto.MenuDto" alias="MenuDto"/> <!--별칭등록-->
+    </typeAliases>
+
     <environments default="dev">
         <environment id="dev">
             <transactionManager type="JDBC"/>
