@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2b9fd0f1-b253-49cf-b513-233be4fc6715" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../02_crud/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../02_crud/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../02_crud/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../02_crud/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../02_crud/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../02_crud/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../02_crud/src/main/resources/section01/config/mybatis-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../02_crud/src/main/resources/section01/config/mybatis-config.xml" afterDir="false" />
-    </list>
+    <list default="true" id="2b9fd0f1-b253-49cf-b513-233be4fc6715" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -90,6 +82,7 @@
       <updated>1743037407928</updated>
       <workItem from="1743037408973" duration="1065000" />
       <workItem from="1743047546376" duration="18000" />
+      <workItem from="1743047664220" duration="4000" />
     </task>
     <servers />
   </component>
