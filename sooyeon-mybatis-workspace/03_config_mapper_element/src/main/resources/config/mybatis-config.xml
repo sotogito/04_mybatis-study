@@ -19,4 +19,8 @@
         </environment>
     </environments>
 
+    <mappers>
+        <mapper resource="mapper/menu-mapper.xml"/>
+    </mappers>
+
 </configuration>
