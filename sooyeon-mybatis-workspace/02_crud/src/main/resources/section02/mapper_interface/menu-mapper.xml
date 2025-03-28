@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    section01 방식
+        Mapper.xml 파일을 가지고 Dao 클래스에서
+        SqlSession을 전달받아 sql문 종류별 메서드를 직접 제시해서 호출
+
+        단점 : 실행할 sql문의 id를 문자열리터럴로 직접 작성해야됨 - 오타발생가능
+               service로 전달받은 데이터를 sql문 실행시 직접 전달해야됨 - 누락시 오류 발생(Object 주입 안해도 오류 안알려줌)
+
+    section02 방식
+        Mapper.xml 파일을 Mapper라는 인터페이스와 연동. 즉, Dao클래스 대신 Mapper인터페이스 두기)
+        Service에서 SqlSession을 통해 해당 Mapper인터페이스메서드를 호출만함
+        MtBatis가 자동으로 Mapper인터페이스에 해당하는 sql문을 바인딩해서 실행
+-->
+
+<!--
+    ## 해당 xml과 매핑되는 Mapper 인터페이스
+    1. xml의  namespace에 매핑하고자하는 Mapper인터페이스의 풀네임 작성
+    2. Mapper인터페이스의 메서드명은 실행할 sql id로 입력
+    3. Mapper인터페이스의 메서드ㅢ 매개변수 타입은 실행할 sql문의 parameterTyp와 동일하게
+    4. Mapper인터페이스의 메서드의 반환타입의 실행할 sql문의 resultType과 동일하게 작성
+        => DML문 (INSERT,UPDATE, DELETE) == int
+        => selectOne => ResultType
+        => selectList => List<ResultType>
+
+
+
+   ## 장점
+   1. SQL문과java 메서드가 명확하게 매필 ( 직관적으로연결 -> 쉽게 찾을 수 있음 -> 유지보수_
+   2. 코드의 간결성
+   3. SqlSession 객체 주입이 불필요하다.(MyBatis에서 자동으로 sql문을 찾아서 실행해줌)
+-->
+<mapper namespace="com.sotogito.section02.mapper_interface.MenuMapper">
+
+    <insert id="insertMenu" parameterType="com.sotogito.dto.MenuDto">
+        INSERT INTO
+            tbl_menu
+            (
+              menu_name
+            , menu_price
+            , orderable_status
+            )
+        VALUES
+            (
+              #{menuName}
+            , #{menuPrice}
+            , #{orderableStatus}
+            )
+    </insert>
+
+    <resultMap id="menuResultMap" type="com.sotogito.dto.MenuDto">
+        <id      column="menu_code"         property="menuCode"/>
+        <result  column="menu_name"         property="menuName"/>
+        <result  column="menu_price"        property="menuPrice"/>
+        <result  column="category_code"     property="categoryCode"/>
+        <result  column="orderable_status"  property="orderableStatus"/>
+    </resultMap>
+
+    <select id="selectMenuByCode" parameterType="_int" resultMap="menuResultMap">
+        SELECT
+            menu_code
+          , menu_name
+          , menu_price
+          , category_code
+          , orderable_status
+        FROM
+            tbl_menu
+        WHERE
+            menu_code = #{menuCode}
+    </select>
+
+
+    <select id="selectMenuCountBelowPrice" parameterType="_int" resultType="_int">
+        <!--XML 파서가 <, &, > 같은 특수문자를 "태그"나 "엔티티"로 해석하지 않게 하는 용도-->
+        <![CDATA[
+            SELECT
+                COUNT(*)
+            FROM
+                tbl_menu
+            WHERE
+                menu_price <= #{menuPrice}
+        ]]>
+    </select>
+
+    <select id="selectMenuListByCategoryName" parameterType="string" resultType="com.sotogito.dto.MenuDto">
+        SELECT
+            menu_code
+          , menu_name
+          , menu_price
+          , category_code
+          , orderable_status
+        FROM
+            tbl_menu
+        WHERE
+            category_code = (SELECT category_code
+                             FROM   tbl_category
+                             WHERE  category_name = #{categoryName})
+    </select>
+
+</mapper>
