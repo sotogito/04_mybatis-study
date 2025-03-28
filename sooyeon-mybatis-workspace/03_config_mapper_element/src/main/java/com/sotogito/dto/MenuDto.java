@@ -8,6 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
+@Builder
 public class MenuDto {
 
     private int menuCode;
@@ -15,5 +16,9 @@ public class MenuDto {
     private int menuPrice;
     private int categoryCode;
     private String orderableStatus;
+
+    /// 메뉴가 가지는 카테고리 정보를 담기 위한 dto
+    /// 1:1관계 - has a
+    private CategoryDto category;
 
 }
