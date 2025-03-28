@@ -1,0 +1,47 @@
+@startuml
+
+entity "사용자" as E1
+entity "관리자" as E2
+entity "창고관리자" as E3
+entity "결제시스템" as E4
+entity "배송시스템" as E5
+
+database "사용자 정보" as D1
+
+database "상품 데이터" as D2
+
+database "주문 내역" as D3
+
+database "재고 데이터" as D4
+
+process "상품 검색" as P1
+process "장바구니 추가" as P2
+process "주문 처리" as P3
+process "주문 승인/취소" as P4
+process "재고 업데이트" as P5
+process "입출고 관리" as P6
+
+E1 --> P1 : 검색 요청
+P1 --> D2 : 상품 조회
+D2 --> P1 : 검색 결과
+
+E1 --> P2 : 장바구니 추가
+P2 --> D1 : 사용자 정보 확인
+P2 --> D2 : 상품 정보 확인
+
+E1 --> P3 : 주문 요청
+P3 --> D3 : 주문 생성
+P3 --> E4 : 결제 요청
+E4 --> P3 : 결제 승인
+P3 --> E5 : 배송 요청
+
+E2 --> P4 : 주문 승인/취소
+P4 --> D3 : 주문 상태 업데이트
+
+E3 --> P5 : 재고 업데이트
+P5 --> D4 : 재고 데이터 변경
+
+E3 --> P6 : 입출고 관리
+P6 --> D4 : 재고 반영
+
+@enduml
