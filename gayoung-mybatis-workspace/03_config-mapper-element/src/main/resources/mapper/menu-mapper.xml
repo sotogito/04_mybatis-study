@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.younggalee.dao.MenuMapper">
+
+    <!--
+        ## <resultMap> ##
+        1. 조회된 결과 데이터를 특정 객체에 매핑(로드)하는 방법을 정의하는 엘리먼트
+        2. ResultSet으로부터 데이터를 가져와서 필드에 매핑하는 JDBC의 코드를 대신해줌
+        3. MyBatis에서 가장 중요하고 강력한 엘리먼트
+
+        ## <resultMap> 주요 속성 ##
+        1. id      : 여러 resultMap을 식별하기 위한 식별자 (필수)
+        2. type    : 결과를 매핑시킬 대상의 Java타입 (필수)
+        3. extends : 자바의 상속처럼 기존에 정의된 resultMap을 상속받아 추가적인 매핑정보 기술
+    -->
+    <resultMap id="menuResultMap1" type="MenuDto">
+        <id column="menu_code" property="menuCode"/>
+        <result column="menu_name" property="menuName"/>
+        <result column="menu_price" property="menuPrice"/>
+    </resultMap>
+
+    <resultMap id="menuResultMap2" type="MenuDto" extends="menuResultMap1">
+        <!-- extends="menuResultMap1"으로 3개의 필드 매핑 대체시키기 -->
+        <result column="category_code" property="categoryCode"/>
+        <result column="orderable_status" property="orderableStatus"/>
+    </resultMap>
+
+    <select id="testResultMapExtends1" resultMap="menuResultMap1">
+        SELECT
+        menu_code
+        , menu_name
+        , menu_price
+        FROM
+        tbl_menu
+        WHERE
+        orderable_status = 'Y'
+    </select>
+
+    <select id="testResultMapExtends2" resultMap="menuResultMap2">
+        SELECT
+        <include refid="columns"/>
+        FROM
+        tbl_menu
+        WHERE
+        orderable_status = 'Y'
+    </select>
+
+    <!--
+        ## <resultMap>의 주요 하위 엘리멘트 ##
+        1. <id>     : primary key 컬럼을 매핑하기 위한 태그 (성능향상(성능최적화))
+        2. <result> : pk 가 아닌 일반 컬럼을 매핑하기 위한 태그
+        3. <association> : 복잡한 타입의 연관관계로 1:1 포함관계(has-a)를 매핑시킬때 사용
+        4. <collection>  : 복잡한 타입의 연관관계로 1:N 포함관계(has-many)를 매핑시킬때 사용
+    -->
+
+    <!-- association(1:1) 방법1.
+    <resultMap id="menuResultMap3" type="MenuDto">
+        <id column="menu_code" property="menuCode"/>
+        <result column="menu_name" property="menuName"/>
+        <result column="menu_price" property="menuPrice"/>
+
+        <association property="category" javaType="CategoryDto">
+            <id column="category_code" property="categoryCode"/>
+            <result column="category_name" property="categoryName"/>
+            <result column="ref_category_code" property="refCategoryCode"/>
+        </association>
+    </resultMap>
+    -->
+
+    <!-- association(1:1) 방법2. CategoryDto를 매핑시키는 resultMap이 존재할 경우 -->
+    <resultMap id="categoryResultMap" type="CategoryDto">
+        <id column="category_code" property="categoryCode"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="ref_category_code" property="refCategoryCode"/>
+    </resultMap>
+    <resultMap id="menuResultMap3" type="MenuDto">
+        <id column="menu_code" property="menuCode"/>
+        <result column="menu_name" property="menuName"/>
+        <result column="menu_price" property="menuPrice"/>
+        <association property="category" resultMap="categoryResultMap"/>
+    </resultMap>
+
+    <select id="testResultMapAssociation" resultMap="menuResultMap3">
+        SELECT
+        m.menu_code
+        , m.menu_name
+        , m.menu_price
+        , c.category_code
+        , c.category_name
+        , c.ref_category_code
+        FROM
+        tbl_menu m
+        JOIN tbl_category c ON c.category_code = m.category_code
+        WHERE
+        orderable_status = 'Y'
+        ORDER BY
+        menu_code DESC
+    </select>
+
+
+    <!-- collection(1:N) 방법1.
+    <resultMap id="orderResultMap" type="OrderDto">
+        <id column="order_code" property="orderCode"/>
+        <result column="order_date" property="orderDate"/>
+        <result column="order_time" property="orderTime"/>
+        <result column="total_order_price" property="totalOrderPrice"/>
+
+        <collection property="orderMenuList" ofType="OrderMenuDto">
+            <result column="menu_code" property="menuCode"/>
+            <result column="order_amount" property="orderAmount"/>
+        </collection>
+    </resultMap>
+    -->
+
+    <!-- collection(1:N) 방법2. -->
+    <resultMap id="orderMenuResultMap" type="OrderMenuDto">
+        <result column="menu_code" property="menuCode"/>
+        <result column="order_amount" property="orderAmount"/>
+    </resultMap>
+    <resultMap id="orderResultMap" type="OrderDto">
+        <id column="order_code" property="orderCode"/>
+        <result column="order_date" property="orderDate"/>
+        <result column="order_time" property="orderTime"/>
+        <result column="total_order_price" property="totalOrderPrice"/>
+        <collection property="orderMenuList" resultMap="orderMenuResultMap"/>
+    </resultMap>
+
+    <select id="testResultMapCollection" parameterType="_int" resultMap="orderResultMap">
+        SELECT
+        o.order_code
+        , o.order_date
+        , o.order_time
+        , o.total_order_price
+        , om.menu_code
+        , om.order_amount
+        FROM
+        tbl_order o
+        JOIN tbl_order_menu om ON om.order_code = o.order_code
+        WHERE
+        o.order_code = #{code}
+    </select>
+
+    <!--
+        ## <sql> ##
+        공통으로 사용할 수 있는 SQL 문자열의 일부를 정의해두고 재사용하기 위해 사용
+    -->
+    <sql id="columns">
+        menu_code
+        , menu_name
+        , menu_price
+        , category_code
+        , orderable_status
+    </sql>
+
+    <select id="testSql" parameterType="_int" resultMap="menuResultMap2">
+        SELECT
+        <include refid="columns"/>
+        FROM
+        tbl_menu
+        WHERE
+        menu_code = #{code}
+    </select>
+
+    <!--
+        ## <insert>, <update>, <delete> 주요 공통속성 ##
+        1. id
+        2. parameterType
+        3. flushCache    : 매핑 구문을 실행할 때 캐시 삭제 여부 설정
+        4. timeout       : sql문 실행 후 응답 기다리는 최대 시간
+        5. statementType : JDBC 구문 타입 지정 (STATEMENT, PREPARED(기본값), CALLABLE)
+
+        ## <insert> 주요 추가 속성 ##
+        1. useGeneratedKeys : 생성 키값을 활용할 건지 여부 지정하는 속성 (기본값 false) => Oracle에서는 불가
+        2. keyProperty      : 생성 키값을 어떤 프로퍼티에 담을건지 지정하는 속성
+    -->
+
+    <!--
+    <insert id="insertCategory" parameterType="MenuDto">
+        <selectKey keyProperty="categoryCode" order="AFTER" resultType="_int">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO
+            tbl_category
+            (
+              category_name
+            , ref_category_code
+            )
+        VALUES
+            (
+              #{category.categoryName}
+            , #{category.refCategoryCode}
+            )
+    </insert>
+    -->
+    <insert id="insertCategory" parameterType="MenuDto"
+            useGeneratedKeys="true" keyProperty="categoryCode">
+        INSERT INTO
+        tbl_category
+        (
+        category_name
+        , ref_category_code
+        )
+        VALUES
+        (
+        #{category.categoryName}
+        , #{category.refCategoryCode}
+        )
+    </insert>
+
+    <insert id="insertMenu" parameterType="MenuDto">
+        INSERT INTO
+        tbl_menu
+        (
+        menu_name
+        , menu_price
+        , category_code
+        , orderable_status
+        )
+        VALUES
+        (
+        #{menuName}
+        , #{menuPrice}
+        , #{categoryCode}
+        , #{orderableStatus}
+        )
+    </insert>
+
+</mapper>
