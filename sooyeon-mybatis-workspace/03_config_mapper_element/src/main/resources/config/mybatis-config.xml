@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <properties resource="config/connection-config.properties"/>
+
+    <!--
+        ##typeAliases 앨리면터
+        Mapper 파일에 대부분 DTO에 대한 탕비 명시시 풀클래스명 작성해야됨 귀찮음
+        풀클래스명 대신 타입별 별칭을 설정할 수 있음
+
+    -->
+    <typeAliases>
+        <typeAlias type="com.sotogito.dto.MenuDto" alias="MenuDto"/> <!--별칭등록-->
+        <typeAlias type="com.sotogito.dto.CategoryDto" alias="CategoryDto"/>
+        <typeAlias type="com.sotogito.dto.OrderDto" alias="OrderDto"/>
+        <typeAlias type="com.sotogito.dto.OrderMenuDto" alias="OrderMenuDto"/>
+    </typeAliases>
+
+    <environments default="dev">
+        <environment id="dev">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <mapper resource="mapper/menu-mapper.xml"/>
+    </mappers>
+
+</configuration>
