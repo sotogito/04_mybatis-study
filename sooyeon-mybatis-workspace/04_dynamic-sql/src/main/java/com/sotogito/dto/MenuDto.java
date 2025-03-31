@@ -15,5 +15,5 @@ public class MenuDto {
     private int menuPrice;
     private int categoryCode;
     private String orderableStatus;
-    
+
 }

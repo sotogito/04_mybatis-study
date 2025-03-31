@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sotogito.dao.MenuMapper">
+
+    <resultMap id="menuResultMap" type="MenuDto">
+        <id     column="menu_code"  property="menuCode"/>
+        <result column="menu_name"  property="menuName"/>
+        <result column="menu_price" property="menuPrice"/>
+        <result column="category_code"    property="categoryCode"/>
+        <result column="orderable_status" property="orderableStatus"/>
+    </resultMap>
+
+
+    <!--
+        ## <if>
+        자바에서의 단일 if문과 같은 역할 수행
+
+        <if test="조건식">
+            해당 조건이 true일 경우 반환할 sql 구문
+        </if>
+
+        조건식 내에서는 전달된 파라미터를 #{} 없이 바로 꺼내쓸 수 있음
+    -->
+    <select id="selectMenuByNameOrCategory1" parameterType="map" resultMap="menuResultMap">
+        SELECT
+            menu_code
+          , menu_name
+          , menu_price
+          , m.category_code
+          , orderable_status
+        FROM
+            tbl_menu m
+            <if test="condition == 'category'">
+                JOIN tbl_category c ON c.category_code = m.category_code
+            </if>
+        WHERE
+            <if test="condition == 'name'">
+                menu_name LIKE CONCAT('%',#{value},'%')
+            </if>
+            <if test="condition == 'category'">
+                 category_name = #{value}
+            </if>
+        AND orderable_status = 'Y'
+        ORDER BY
+            menu_code DESC
+    </select>
+
+
+    <!--
+        ## choose, when otherwise
+        자바에서의 if-else if문 else문과 같은 역할 수행
+
+        <choose>
+            <when test="조건식">
+                해당 조건이 true일 경우 반환할 sql
+            </when>
+            <when test="조건식2">
+                해당 조건이 true일 경우 반환할 sql2
+            </when>
+        </choose>
+        ...
+        <orherwise>
+            나머지 반환할sql
+        </otherwise>
+    -->
+    <select id="selectMenuByNameOrCategory2" parameterType="map" resultMap="menuResultMap">
+        SELECT
+            menu_code
+          , menu_name
+          , menu_price
+          , m.category_code
+          , orderable_status
+        FROM
+            tbl_menu m
+            <if test="condition == 'category'">
+                JOIN tbl_category c ON c.category_code = m.category_code
+            </if>
+        WHERE
+        <choose>
+            <when test="condition == 'name'">
+                 menu_name LIKE CONCAT('%',#{value},'%')
+            </when>
+            <otherwise>
+                 category_name = #{value}
+            </otherwise>
+        </choose>
+        AND  orderable_status = 'Y'
+        ORDER BY
+            menu_code DESC
+    </select>
+
+
+    <!--
+        ## foreach
+        자바에서 for문과 같은 역할 수행
+
+        <foreach collection="반복수행할 대상"
+                 item="접근해서 반환된 값을 담을 변수"
+                 open="반복문 수행시 최초에 반환할 문구"
+                 seperator="반복문 수행시마다 반환할 문구"
+                 close="반복문 수행이 끝나고 최종으로 반환할 문구">
+
+            반복적으로 반환할 구문
+
+        </foreach>
+    -->
+    <!--
+    <delete id="deleteMenu" parameterType="list">
+        DELETE
+        FROM tbl_menu
+        WHERE
+            menu_code IN
+            <foreach collection="list" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+    </delete>
+    -->
+    <delete id="deleteMenu" parameterType="map">
+        DELETE
+        FROM tbl_menu
+        WHERE
+        menu_code IN
+        <foreach collection="deleteMenuCodes" item="code" open="(" separator="," close=")"> <!--for(Integer code : deleteMenuCodeList)-->
+            #{code}
+        </foreach>
+    </delete>
+
+
+    <!--
+        ## where
+        해당 엘리먼트 내에서 반환되는 sql구문이 있을 경우 where키워드 붙여줌
+        반환되는 sql구문이 없을경우 where키워드 붙이지 않음
+        반환되는 sql구분의 시작이 and 또는 or일 경우 해당 조건을 빼고 where를 붙여줌
+    -->
+    <select id="selectMenuByCodeOrSearchAll" parameterType="_int" resultMap="menuResultMap">
+        SELECT
+            menu_code
+        , menu_name
+        , menu_price
+        , category_code
+        , orderable_status
+        FROM
+            tbl_menu
+<!--        WHERE-->
+<!--        <if test="menuCode != 0"> 0일 경우 WHERE절 비어있어서 오류-->
+<!--            menu_code = #{menuCode}-->
+<!--        </if>-->
+
+        <where>
+            <if test="menuCode != 0">
+                menu_code = #{menuCode}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectMenuByNameOrCategory3" parameterType="map" resultMap="menuResultMap">
+        SELECT
+            menu_code
+          , menu_name
+          , menu_price
+          , category_code
+          , orderable_status
+        FROM
+            tbl_menu
+<!--        <where>-->
+<!--            <if test="name != null and name !=''">-->
+<!--                 menu_name LIKE CONCAT('%', #{name}, '%')-->
+<!--            </if>-->
+<!--            <if test="category != null">-->
+<!--                OR category_code = #{category}-->
+<!--            </if>-->
+<!--        </where>-->
+        <trim prefix="WHERE" prefixOverrides="AND|OR"> <!--만약 and or이 앞에 있으면 지우고 where작성-->
+            <if test="name != null and name !=''">
+                menu_name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="category != null">
+                OR category_code = #{category}
+            </if>
+        </trim>
+        <!--
+            ##trim
+            조회 조건에 and 혹은 or로 시작하지 않고 다른 문자로 시작하는 경우
+            where 앨리번트가 기본적으로 처리하는 기능에 추가 규착을 정의학 위해 사용
+            - prefix : 반환하는 구문 맨 앞에 붙일 구문
+            - prefixOverrides : 반환되는 구문의 맨 앞에 제거할 구문
+            - suffixOverrides : 반환되는 구문의 맨 뒤에 제거할 구문
+        -->
+    </select>
+
+
+    <!--
+        ## set
+        반환되는 sql구문이 있을 경우 set을 접두어로 붙여주는 앨리먼트
+    -->
+    <update id="updateMenu" parameterType="map">
+        UPDATE
+            tbl_menu
+        <set>
+            <if test="name != null and name != ''">
+                menu_name = #{name},
+            </if>
+            <if test="category != null and category != ''">
+                category_code = #{category},
+            </if>
+            <if test="orderable != null and orderable != ''">
+                orderable_status = #{orderable}
+            </if>
+        </set>
+        WHERE
+            menu_code = #{code}
+    </update>
+
+<!--    <update id="updateMenu" parameterType="map">-->
+<!--        UPDATE-->
+<!--        tbl_menu-->
+<!--        <trim prefix="SET" suffixOverrides=",">-->
+<!--            <if test="name != null and name != ''">-->
+<!--                menu_name = #{name},-->
+<!--            </if>-->
+<!--            <if test="category != null and category != ''">-->
+<!--                category_code = #{category},-->
+<!--            </if>-->
+<!--            <if test="orderable != null and orderable != ''">-->
+<!--                orderable_status = #{orderable}-->
+<!--            </if>-->
+<!--        </trim>-->
+<!--        WHERE-->
+<!--        menu_code = #{code}-->
+<!--    </update>-->
+
+</mapper>
+
