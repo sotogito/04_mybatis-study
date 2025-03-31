@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kyungbae.dao.MenuMapper">
+
+    <resultMap id="menuResultMap" type="MenuDto">
+        <id column="menu_code" property="menuCode"/>
+        <result column="menu_name" property="menuName"/>
+        <result column="menu_price" property="menuPrice"/>
+        <result column="category_code" property="categoryCode"/>
+        <result column="orderable_status" property="orderableStatus"/>
+    </resultMap>
+
+    <select id="selectMenuByNameOrCategory1" parameterType="map" resultMap="menuResultMap">
+        SELECT
+              menu_code
+            , menu_name
+            , menu_price
+            , m.category_code
+            , orderable_status
+        FROM
+            tbl_menu m
+            <if test="condition == 'category'">
+            JOIN tbl_category c ON c.category_code = m.category_code
+            </if>
+        WHERE
+            orderable_status = 'Y'
+        <if test="condition == 'name'">
+        AND menu_name LIKE CONCAT('%', #{value}, '%')
+        </if>
+        <if test="condition == 'category'">
+        AND category_name = #{value}
+        </if>
+        ORDER BY
+            menu_code DESC
+    </select>
+
+    <select id="selectMenuByNameOrCategory2" parameterType="map" resultMap="menuResultMap">
+        SELECT
+              menu_code
+            , menu_name
+            , menu_price
+            , m.category_code
+            , orderable_status
+        FROM
+            tbl_menu m
+            <if test="condition == 'category'">
+                JOIN tbl_category c ON c.category_code = m.category_code
+            </if>
+        WHERE
+            orderable_status = 'Y'
+            <choose>
+            <when test="condition == 'name'">
+            AND menu_name LIKE CONCAT('%', #{value}, '%')
+            </when>
+            <otherwise>
+            AND category_name = #{value}
+            </otherwise>
+            </choose>
+        ORDER BY
+            menu_code DESC
+    </select>
+
+    <!-- 해당 sql문으로 반복수행할 list가 바로 전달될 경우 (collecction="list")
+    <delete id="deleteMenu" parameterType="list">
+        DELETE
+        FROM tbl_menu
+        WHERE
+            menu_code IN
+            <foreach collection="list" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+    </delete>
+    -->
+
+    <!-- 해당 sql문으로 반복수행할 list가 map에 담겨 전달될 경우 -->
+    <delete id="deleteMenu" parameterType="map">
+        DELETE
+        FROM tbl_menu
+        WHERE
+        menu_code IN
+        <foreach collection="deleteMenuCode" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </delete>
+
+    <select id="selectMenuByCodeOrSearchAll" parameterType="_int" resultMap="menuResultMap">
+        SELECT
+              menu_code
+            , menu_name
+            , menu_price
+            , category_code
+            , orderable_status
+        FROM
+            tbl_menu
+        <where>
+        <if test="menuCode != 0">
+            menu_code = #{menuCode}
+        </if>
+        </where>
+    </select>
+
+    <select id="selectMenuByNameOrCategory3" parameterType="map" resultMap="menuResultMap">
+        SELECT
+              menu_code
+            , menu_name
+            , menu_price
+            , category_code
+            , orderable_status
+        FROM
+            tbl_menu
+
+        <!-- <where> 사용
+        <where>
+            <if test="name != null and name != ''">
+                menu_name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="category != null">
+                OR category_code = #{category}
+            </if>
+        </where>
+        -->
+
+        <!-- <trim> 사용 -->
+        <trim prefix="WHERE" prefixOverrides="AND|OR">
+            <if test="name != null and name != ''">
+                menu_name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="category != null">
+                OR category_code = #{category}
+            </if>
+        </trim>
+
+    </select>
+
+    <update id="updateMenu" parameterType="map">
+        UPDATE
+            tbl_menu
+        <!--
+        <set>
+            <if test="name != null and name != ''">
+                menu_name = #{name},
+            </if>
+            <if test="category != null and category != ''">
+                category_code = #{category},
+            </if>
+            <if test="orderable != null and orderable != ''">
+                orderable_status = #{orderable}
+            </if>
+        </set>
+        -->
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                menu_name = #{name},
+            </if>
+            <if test="category != null and category != ''">
+                category_code = #{category},
+            </if>
+            <if test="orderable != null and orderable != ''">
+                orderable_status = #{orderable}
+            </if>
+        </trim>
+        WHERE
+            menu_code = #{code}
+    </update>
+
+
+</mapper>
