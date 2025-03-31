@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.minkook.dao.MenuMapper"> <!--namesplace : Mapper파일을 식별하기 위해-->
+
+    <!--
+        ## <resultMap> ##
+        1. 조회된 결과 데이터를 특정 객체에 매핑(로드)하는 방법을 정의하는 엘리먼트
+        2. resultSet으로부터 데이터를 가져와서 필드에 매핑하는 JDBC의 코드를 대신해줌
+        3. Mybatis에서 가장 중요하고 강력한 엘리먼트
+
+        ## <resultMap> 주요속성 ##
+        1. id       :   여러 resultMap을 식별하기 위한 식별자 (필수)
+        2. type     :   결과를 매핑시킬 대상의 JAVA타입(필수)
+        3. extends  :
+       -->
+    
+    <resultMap id="menuResultMap1" type="MenuDto">
+        <id column="menu_code" property="menuCode"/>
+        <result column="menu_name" property="menuName"/>
+        <result column="menu_price" property="menuPrice"/>
+     </resultMap>
+
+    <select id="" resultType="_int" resultMap="menuResultMap1">
+        select
+             menu_code
+            ,menu_name
+            ,menu_price
+        FROM
+            tbl_menu
+        where
+            orderable_status = 'Y'
+
+    </select>
+</mapper>
+
