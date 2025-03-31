@@ -10,6 +10,13 @@ public class MenuDto {
     public MenuDto() {
     }
 
+    public MenuDto(int menuCode, String menuName, int menuPrice, int categoryCode) {
+        this.menuCode = menuCode;
+        this.menuName = menuName;
+        this.menuPrice = menuPrice;
+        this.categoryCode = categoryCode;
+    }
+
     public MenuDto(int menuCode, String menuName, int menuPrice, int categoryCode, String orderableStatus) {
         this.menuCode = menuCode;
         this.menuName = menuName;

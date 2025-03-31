@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    section01 방식.
+        Mapper파일(xml)을 가지고 Dao 클래스에서
+        SqlSession을 전달받아 sql문 종류별 메소드를 직접 제시해서 호출, 직접 데이터 전달, 결과받기 진행
+        단점 : 실행할 sql문의 id를 문자열리터럴로 직접 작성해야됨
+                service로부터 전달받은 데이터를 sql문 실행시 직접 전달해야됨 (누락시 문제발생)
+
+     section02 방식.
+        Mapper파일(xml)을 Mapper라는 인터페이스와 연동 (즉, Dao클래스 대신 Mapper 인터페이스 두기)
+        service에서 SqlSession을 통해 해당 Mapper 인터페이스의 메소드를 호출만 함
+        MyBatis가 자동으로 Mapper 인터페이스에 해당하는 sql문을 바인딩해서 실행해줌
+-->
+
+<!--
+    ## 해당 xml과 매핑되는 Mapper 인터페이스 ##
+    1. xml의 namespace에 매핑시키고자하는 Mapper인터페이스의 풀네임 작성
+    2. Mapper인터페이스의 메소드명은 실행할 sql문의 id로 작성
+    3. Mapper인터페이스의 메소드의 매개변수 타입은 실행할 sql문의 parameterType과 동일하게
+    4. Mapper인터페이스의 메소드의 반환타입은 실행할 sql문의 resultType과 동일하게 작성
+        => DML문(INSERT,UPDATE,DELETE)  == int
+        => SELECT문(한행)   == resultType
+           SELECT문(여러행) == List<resultType>
+
+    ## 장점 ##
+    1. SQL문과 Java 메소드가 명확하게 매핑 (직관적으로 연결 => 쉽게 찾을 수 있음 => 유지보수 용이)
+    2. 코드의 간결성
+    3. SqlSession객체 주입 불필요 (MyBatis에서 자동으로 sql문을 찾아서 실행해줌)
+
+-->
+
+<mapper namespace="com.podoseee.section02.mapper_interface.MenuMapper">
+
+    <insert id="insertMenu" parameterType="com.podoseee.dto.MenuDto">
+        INSERT INTO
+            tbl_menu
+            (
+             menu_name
+           , menu_price
+           , orderable_status
+            )
+        VALUES
+            (
+              #{menuName}
+            , #{menuPrice}
+            , #{orderableStatus}
+            )
+    </insert>
+
+    <select id="selectMenuByCode" parameterType="_int" resultType="com.podoseee.dto.MenuDto">
+        SELECT
+            menu_code
+          , menu_name
+          , menu_price
+          , category_code
+          , orderable_status
+        FROM
+            tbl_menu
+        WHERE
+            menu_code = #{code}
+    </select>
+
+    <select id="selectMenuCountByPrice" parameterType="_int" resultType="_int">
+        <![CDATA[
+        SELECT
+            COUNT(*)
+        FROM
+            tbl_menu
+        WHERE
+            menu_price <= #{price}
+        ]]>
+    </select>
+
+    <select id="selectMenuByCategory" parameterType="java.lang.String" resultType="com.podoseee.dto.MenuDto">
+        SELECT
+            menu_code  AS menuCode
+          , menu_name  AS menuName
+          , menu_price AS menuPrice
+        FROM
+            tbl_menu
+        WHERE
+             category_code = (SELECT category_code
+                              FROM tbl_category
+                              WHERE category_name = #{category})
+    </select>
+</mapper>

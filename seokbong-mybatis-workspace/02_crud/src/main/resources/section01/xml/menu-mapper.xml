@@ -76,6 +76,106 @@
             )
     </insert>
 
+    <update id="updateMenu" parameterType="com.jjanggu.dto.MenuDto">
+        UPDATE
+            tbl_menu
+        SET
+            menu_name = #{menuName}
+          , menu_price = #{menuPrice}
+          , category_code = #{categoryCode}
+        WHERE
+            menu_code = #{menuCode}
+    </update>
+
+    <delete id="deleteMenu" parameterType="_int">
+        DELETE
+        FROM tbl_menu
+        WHERE
+            menu_code = #{code}
+    </delete>
+
+    <!--한 row에 대한 결과를 매핑시킬 타입 == java.lang.String -->
+    <select id="selectMenuNameList" resultType="java.lang.String">
+        SELECT
+            menu_name
+        FROM
+            tbl_menu
+    </select>
+
+    <!-- 한 row에 대한 결과를 매핑시킬 타입 : MenuDto -->
+    <!--
+        case 1:  resultType = MenuDto
+            조회되는 컬럼명이 매핑시킬 MenuDto의 필드명과 일치해야됨 (그래야 자동으로 매핑됨)
+            조회되는 컬럼명이 필드명과 다를 경우
+            별칭을 부여해서 컬럼의 헤더가 필드명으로 조회되도록 해야됨
+    -->
+    <!--
+    <select id="selectOrderableMenuList" resultType="com.jjanggu.dto.MenuDto">
+        SELECT
+            menu_code         AS menuCode
+          , menu_name         AS menuName
+          , menu_price        AS menuPrice
+          , category_code     AS categoryCode
+          , orderable_status  AS orderableStatus
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status = 'Y'
+    </select>
+    단점 : 매번 메뉴에 대해 조회할 때 마다 별칭 지정해야됨
+    -->
+
+    <!--
+        case 2: resultMap 사용 방식
+            특정 컬럼값을 특정 필드에 매핑시키는 resultMap을 한번 정의해두고 재사용하기
+            <resultMap id="식별자" type="매핑시킬DTO타입">
+                <id|result column="조회되는컬럼명" property="매핑시킬DTO의필드명"  />
+            </resultMap>
+    -->
+    <resultMap id="menuResultMap" type="com.jjanggu.dto.MenuDto">
+        <id column="menu_code" property="menuCode"/>
+        <result column="menu_name" property="menuName"/>
+        <result column="menu_price" property="menuPrice"/>
+        <result column="category_code" property="categoryCode"/>
+        <result column="orderable_status" property="orderableStatus"/>
+    </resultMap>
+
+    <select id="selectOrderableMenuList" resultMap="menuResultMap">
+        SELECT
+            menu_code
+          , menu_name
+          , menu_price
+          , category_code
+          , orderable_status
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status = 'Y'
+    </select>
+
+    <select id="selectOrderableMenuCount" resultType="_int">
+        SELECT
+            COUNT(*)
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status ='Y'
+    </select>
+
+    <select id="selectMenuByCode" parameterType="_int" resultMap="menuResultMap">
+        SELECT
+            menu_code
+          , menu_name
+          , menu_price
+          , category_code
+          , orderable_status
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status = 'Y'
+        AND menu_code = #{code}
+    </select>
+
 
 
 

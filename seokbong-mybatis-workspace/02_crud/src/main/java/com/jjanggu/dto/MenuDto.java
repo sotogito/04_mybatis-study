@@ -18,6 +18,13 @@ public class MenuDto {
         this.orderableStatus = orderableStatus;
     }
 
+    public MenuDto(int menuCode, String menuName, int menuPrice, int categoryCode) {
+        this.menuCode = menuCode;
+        this.menuName = menuName;
+        this.menuPrice = menuPrice;
+        this.categoryCode = categoryCode;
+    }
+
     public int getMenuCode() {
         return menuCode;
     }
