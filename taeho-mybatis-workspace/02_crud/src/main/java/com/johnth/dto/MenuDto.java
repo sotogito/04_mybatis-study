@@ -1,14 +1,14 @@
 package com.johnth.dto;
 
 public class MenuDto {
+
     private int menuCode;
     private String menuName;
     private int menuPrice;
     private int categoryCode;
     private String orderableStatus;
 
-    public MenuDto() {
-    }
+    public MenuDto(){}
 
     public MenuDto(int menuCode, String menuName, int menuPrice, int categoryCode, String orderableStatus) {
         this.menuCode = menuCode;
@@ -16,6 +16,13 @@ public class MenuDto {
         this.menuPrice = menuPrice;
         this.categoryCode = categoryCode;
         this.orderableStatus = orderableStatus;
+    }
+
+    public MenuDto(int menuCode, String menuName, int menuPrice, int categoryCode) {
+        this.menuCode = menuCode;
+        this.menuName = menuName;
+        this.menuPrice = menuPrice;
+        this.categoryCode = categoryCode;
     }
 
     public int getMenuCode() {
