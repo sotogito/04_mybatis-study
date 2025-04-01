@@ -22,4 +22,87 @@
             )
     </insert>
 
+    <update id="updateMenu" parameterType="com.kyungbae.dto.MenuDto">
+        UPDATE
+            tbl_menu
+        SET
+            menu_name = #{menuName}
+            , menu_price = #{menuPrice}
+            , category_code = #{categoryCode}
+        WHERE
+            menu_code = #{menuCode}
+    </update>
+
+    <delete id="deleteMenu" parameterType="_int">
+        DELETE
+        FROM tbl_menu
+        WHERE
+            menu_code = #{code}
+    </delete>
+
+    <select id="selectMenuNameList" resultType="string">
+        SELECT
+            menu_name
+        FROM
+            tbl_menu
+    </select>
+
+    <!--
+    <select id="selectOrderableMenuList" resultType="com.kyungbae.dto.MenuDto">
+        SELECT
+            menu_code menuCode
+            , menu_name menuName
+            , menu_price menuPrice
+            , category_code categoryCode
+            , orderable_status orderableStatus
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status = 'Y'
+    </select>
+    -->
+
+    <resultMap id="menuResultMap" type="com.kyungbae.dto.MenuDto">
+        <id column="menu_code" property="menuCode"/>
+        <result column="menu_name" property="menuName"/>
+        <result column="menu_price" property="menuPrice"/>
+        <result column="category_code" property="categoryCode"/>
+        <result column="orderable_status" property="orderableStatus"/>
+    </resultMap>
+
+    <select id="selectOrderableMenuList" resultMap="menuResultMap">
+        SELECT
+            menu_code
+            , menu_name
+            , menu_price
+            , category_code
+            , orderable_status
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status = 'Y'
+    </select>
+
+    <select id="selectOrderableMenuCount" resultType="_int">
+        SELECT
+            COUNT(*)
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status = 'Y'
+    </select>
+
+    <select id="selectMenuByMenuCode" parameterType="_int" resultMap="menuResultMap">
+        SELECT
+        menu_code
+            , menu_name
+            , menu_price
+            , category_code
+            , orderable_status
+        FROM
+            tbl_menu
+        WHERE
+            orderable_status = 'Y'
+        AND menu_code = #{menuCode}
+    </select>
 </mapper>

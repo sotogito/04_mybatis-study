@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kyungbae.section02.mapper_interface.MenuMapper">
+
+    <insert id="insertMenu" parameterType="com.kyungbae.dto.MenuDto">
+        INSERT INTO
+            tbl_menu
+            (
+              menu_name
+            , menu_price
+            , orderable_status
+            )
+        VALUES
+            (
+              #{menuName}
+            , #{menuPrice}
+            , #{orderableStatus}
+            )
+    </insert>
+
+    <select id="selectMenuByCode" parameterType="_int" resultType="com.kyungbae.dto.MenuDto">
+        SELECT
+            menu_code menuCode
+            , menu_name menuName
+            , menu_price menuPrice
+            , category_code categoryCode
+            , orderable_status orderableStatus
+        FROM
+            tbl_menu
+        WHERE
+            menu_code = #{code}
+    </select>
+
+    <select id="selectMenuByPrice" parameterType="_int" resultType="_int">
+        <![CDATA[
+        SELECT
+            COUNT(*)
+        FROM
+            tbl_menu
+        WHERE
+             menu_price <= #{price}
+        ]]>
+    </select>
+
+    <select id="selectMenuByCategory" parameterType="string" resultType="com.kyungbae.dto.MenuDto">
+        SELECT
+            menu_code menuCode
+            , menu_name menuName
+            , menu_price menuPrice
+        FROM
+            tbl_menu
+        WHERE
+            category_code = (SELECT
+                                category_code
+                            FROM
+                                tbl_category
+                            WHERE
+                                category_name = #{category})
+    </select>
+
+</mapper>
